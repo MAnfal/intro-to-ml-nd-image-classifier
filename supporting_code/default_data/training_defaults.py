@@ -1,33 +1,36 @@
 from supporting_code.enums.supported_training_cli_params import SupportedTrainingCLIParams
 from supporting_code.enums.supported_architectures import SupportedArchitectures
 import os
+import torch
 
 
 class TrainingDefaults:
     def __init__(self):
-        # These params can be passed from the CLI.
-        self.__default_save_dir = 'models'
-        self.__default_architecture = SupportedArchitectures.DENSE_NET_121
-        self.__default_learning_rate = 0.0008
-        self.__default_hidden_units = 1024
-        self.__default_epochs = 10
-        self.__default_data_dir = 'flowers'
-
-        # These params are served as defaults for now.
-        self.__default_batch_size = 64
-        self.__default_network_means = [0.485, 0.456, 0.406]
-        self.__default_network_std_dev = [0.229, 0.224, 0.225]
-        self.__default_center_crop_size = 224
-        self.__default_image_resize_size = 255
-        self.__default_saved_model_name = 'image_classifier_model.pt'
-
         self.__supported_cli_training_params = SupportedTrainingCLIParams()
-
         self.__cli_args = self.__supported_cli_training_params.get_all_args()
-        self.__cli_data_dir = self.__supported_cli_training_params.get_data_dir()
 
-    def get_data_directories(self):
-        data_dir = self.__default_data_dir if self.__cli_data_dir is None else self.__cli_data_dir
+        # All the publicly available params.
+        self.DATA_DIRECTORIES = self.__get_data_directories()
+        self.MODEL_SAVE_PATH = self.__get_model_save_path()
+        self.NETWORK_STD_DEV = [0.229, 0.224, 0.225]
+        self.NETWORK_MEANS = [0.485, 0.456, 0.406]
+        self.BATCH_SIZE = 64
+        self.EPOCHS = self.__get_epochs()
+        self.LEARNING_RATE = self.__get_lr()
+        self.HIDDEN_UNITS = self.__get_hidden_units()
+        self.ARCHITECTURE = self.__get_arch()
+
+        self.CENTER_CROP_SIZE = 224
+        self.IMAGE_RESIZE_SIZE = 255
+
+        self.CATEGORY_TO_JSON_FILE_NAME = 'cat_to_name.json'
+
+        self.DEVICE = self.__get_device()
+
+    def __get_data_directories(self):
+        cli_data_dir = self.__supported_cli_training_params.get_data_dir()
+
+        data_dir = 'flowers' if cli_data_dir is None else cli_data_dir
 
         if not os.path.exists(f"./{data_dir}"):
             raise Exception(f"Data Directory: \"{data_dir}\" does not exist.")
@@ -44,7 +47,34 @@ class TrainingDefaults:
 
         return data_dir_dict
 
-    def get_model_save_path(self):
+    def __get_model_save_path(self):
         cli_save_path = self.__cli_args[self.__supported_cli_training_params.SAVE_DIRECTORY]
 
-        return f"{self.__default_save_dir if cli_save_path is None else cli_save_path}/{self.__default_saved_model_name}"
+        return f"{'models' if cli_save_path is None else cli_save_path}/image_classifier_model.pt"
+
+    def __get_epochs(self):
+        cli_epochs = self.__cli_args[self.__supported_cli_training_params.EPOCHS]
+
+        return 10 if cli_epochs is None else int(cli_epochs)
+
+    def __get_lr(self):
+        cli_lr = self.__cli_args[self.__supported_cli_training_params.LEARNING_RATE]
+
+        return 0.0008 if cli_lr is None else float(cli_lr)
+
+    def __get_hidden_units(self):
+        cli_hu = self.__cli_args[self.__supported_cli_training_params.HIDDEN_UNITS]
+
+        return 512 if cli_hu is None else int(cli_hu)
+
+    def __get_arch(self):
+        cli_arch = self.__cli_args[self.__supported_cli_training_params.LEARNING_RATE]
+
+        arch = SupportedArchitectures.DENSE_NET_121.value if cli_arch is None else cli_arch
+
+        return arch
+
+    def __get_device(self):
+        choose_gpu = self.__cli_args[self.__supported_cli_training_params.GPU] or torch.cuda.is_available()
+
+        return torch.device('cuda' if choose_gpu else 'cpu')

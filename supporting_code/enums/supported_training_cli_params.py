@@ -17,7 +17,7 @@ class SupportedTrainingCLIParams:
         self.__arg_parser.add_argument('--' + self.LEARNING_RATE)
         self.__arg_parser.add_argument('--' + self.HIDDEN_UNITS)
         self.__arg_parser.add_argument('--' + self.EPOCHS)
-        self.__arg_parser.add_argument('--' + self.GPU)
+        self.__arg_parser.add_argument('--' + self.GPU, action='store_true')
         
         self.__parsed_args = self.__arg_parser.parse_known_args()
 
