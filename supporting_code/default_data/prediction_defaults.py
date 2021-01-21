@@ -1,5 +1,6 @@
-from supporting_code.enums.supported_training_cli_params import SupportedTrainingCLIParams
+from supporting_code.enums.supported_cli_params import SupportedTrainingCLIParams
 from supporting_code.default_data.training_defaults import TrainingDefaults
+import os
 
 
 class PredictionDefaults:
@@ -10,10 +11,18 @@ class PredictionDefaults:
         self.__cli_args = self.__supported_cli_training_params.get_all_args()
 
         # All the publicly available params.
-        self.IMAGE_PATH = self.__supported_cli_training_params.get_image_path()
+        self.IMAGE_PATH = self.__get_image_path()
         self.CHECKPOINT_PATH = self.__get_checkpoint_path()
         self.CATEGORY_TO_JSON_FILE_PATH = self.__get_categories_to_names_json_path()
         self.TOP_K = self.__get_top_k()
+
+    def __get_image_path(self):
+        cli_img_path = self.__supported_cli_training_params.get_image_path()
+
+        if not os.path.exists(cli_img_path):
+            raise Exception('Image does not exist.')
+
+        return cli_img_path
 
     def __get_checkpoint_path(self):
         cli_checkpoint_path = self.__supported_cli_training_params.get_checkpoint_path()

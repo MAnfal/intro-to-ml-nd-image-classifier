@@ -1,4 +1,4 @@
-from supporting_code.enums.supported_training_cli_params import SupportedTrainingCLIParams
+from supporting_code.enums.supported_cli_params import SupportedTrainingCLIParams
 from supporting_code.enums.supported_architectures import SupportedArchitectures
 import os
 import torch
