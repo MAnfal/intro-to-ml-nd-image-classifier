@@ -9,6 +9,8 @@ class SupportedTrainingCLIParams:
         self.HIDDEN_UNITS = 'hidden_units'
         self.EPOCHS = 'epochs'
         self.GPU = 'gpu'
+        self.CATEGORY_NAMES = 'category_names'
+        self.TOP_K = 'top_k'
 
         self.__arg_parser = ArgumentParser()
 
@@ -46,6 +48,17 @@ class SupportedTrainingCLIParams:
             default=False,
             help='Force the model on GPU for training.'
         )
+
+        self.__arg_parser.add_argument(
+            '--' + self.CATEGORY_NAMES,
+            help='Path to JSON to use while mapping categories to names.'
+        )
+
+        self.__arg_parser.add_argument(
+            '--' + self.TOP_K,
+            type=int,
+            help='Number of top predictions to return.'
+        )
         
         self.__parsed_args = self.__arg_parser.parse_known_args()
 
@@ -59,11 +72,33 @@ class SupportedTrainingCLIParams:
     def get_data_dir(self):
         return self.__data_dir
 
-    def __get_parsed_data_dir(self):
-        parsed_data_dir = self.__parsed_args[1]
-        data_dir = None
+    def __get_anonymous_parsed_args(self):
+        return self.__parsed_args[1]
 
-        if len(parsed_data_dir) > 0:
-            data_dir = parsed_data_dir[0]
+    def __get_parsed_data_dir(self):
+        anon_parsed_args = self.__get_anonymous_parsed_args()
+
+        if len(anon_parsed_args) < 1:
+            data_dir = None
+        else:
+            data_dir = anon_parsed_args[0]
 
         return data_dir
+
+    def get_image_path(self):
+        anon_parsed_args = self.__get_anonymous_parsed_args()
+
+        if len(anon_parsed_args) < 1:
+            raise Exception('Image path required.')
+
+        return anon_parsed_args[0]
+
+    def get_checkpoint_path(self):
+        anon_parsed_args = self.__get_anonymous_parsed_args()
+
+        if len(anon_parsed_args) < 2:
+            checkpoint_path = None
+        else:
+            checkpoint_path = anon_parsed_args[1]
+
+        return checkpoint_path

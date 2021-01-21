@@ -5,12 +5,12 @@ import torch
 
 
 class TrainingDefaults:
-    def __init__(self):
+    def __init__(self, train_mode=True):
         self.__supported_cli_training_params = SupportedTrainingCLIParams()
         self.__cli_args = self.__supported_cli_training_params.get_all_args()
 
         # All the publicly available params.
-        self.DATA_DIRECTORIES = self.__get_data_directories()
+        self.DATA_DIRECTORIES = self.__get_data_directories() if train_mode else {}
         self.MODEL_SAVE_PATH = self.__get_model_save_path()
         self.NETWORK_STD_DEV = [0.229, 0.224, 0.225]
         self.NETWORK_MEANS = [0.485, 0.456, 0.406]
