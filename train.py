@@ -1,6 +1,7 @@
 from supporting_code.default_data.training_defaults import TrainingDefaults
 import json
 import torch
+from torchvision import models
 from torch import nn, optim
 from collections import OrderedDict
 from supporting_code.utilities.data_loader_utility import DataLoaderUtility

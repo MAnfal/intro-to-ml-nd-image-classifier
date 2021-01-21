@@ -55,17 +55,17 @@ class TrainingDefaults:
     def __get_epochs(self):
         cli_epochs = self.__cli_args[self.__supported_cli_training_params.EPOCHS]
 
-        return 10 if cli_epochs is None else int(cli_epochs)
+        return 10 if cli_epochs is None else cli_epochs
 
     def __get_lr(self):
         cli_lr = self.__cli_args[self.__supported_cli_training_params.LEARNING_RATE]
 
-        return 0.0008 if cli_lr is None else float(cli_lr)
+        return 0.0008 if cli_lr is None else cli_lr
 
     def __get_hidden_units(self):
         cli_hu = self.__cli_args[self.__supported_cli_training_params.HIDDEN_UNITS]
 
-        return 512 if cli_hu is None else int(cli_hu)
+        return 512 if cli_hu is None else cli_hu
 
     def __get_arch(self):
         cli_arch = self.__cli_args[self.__supported_cli_training_params.LEARNING_RATE]
@@ -75,6 +75,11 @@ class TrainingDefaults:
         return arch
 
     def __get_device(self):
-        choose_gpu = self.__cli_args[self.__supported_cli_training_params.GPU] or torch.cuda.is_available()
+        cli_gpu = self.__cli_args[self.__supported_cli_training_params.GPU]
 
-        return torch.device('cuda' if choose_gpu else 'cpu')
+        is_cuda_available = torch.cuda.is_available()
+
+        if cli_gpu and not is_cuda_available:
+            raise Exception('Model can\'t run on GPU. It\'s not available.')
+
+        return torch.device('cuda' if (cli_gpu or is_cuda_available) else 'cpu')
